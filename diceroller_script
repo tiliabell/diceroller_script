@@ -1,0 +1,3 @@
+#!/bin/sh
+cd /Users/Tilia/Documents/fromGitHub
+python3 diceroller.py
