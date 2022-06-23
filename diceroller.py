@@ -25,8 +25,10 @@ NOT_VALID = "\nThat's not a valid roll. Please try again.\n"
 
 prev_roll = None
 
+
 def err(error_msg):
     print(error_msg)
+
 
 def sanitize(input_string):
     """Takes a str as input, removes weird chars, and outputs the 
@@ -41,15 +43,16 @@ def sanitize(input_string):
             sanitized_string += i
     return sanitized_string
 
+
 def parse_dicestring(dicestring):
     num = ""
     die = ""
     mod = 0
     if "+" in dicestring:
-        roll_str,mod_str = dicestring.split("+") 
+        roll_str, mod_str = dicestring.split("+")
     else:
         roll_str = dicestring
-    num_str,die_str = roll_str.split("d")
+    num_str, die_str = roll_str.split("d")
     try:
         num = int(num_str)
         die = int(die_str)
@@ -57,25 +60,28 @@ def parse_dicestring(dicestring):
     except:
         err("num or die not a decimal")
         exit(1)
-    
-    if num < 1 or die < 2 : # num must be at least 1, and die must be at least 2
+
+    if num < 1 or die < 2:  # num must be at least 1, and die must be at least 2
         err("Number of dice must be at least 1, and die must be at least 2")
         exit(1)
-    return num,die,mod
+    return num, die, mod
+
 
 def roll_em(num, die, mod):
     """Takes a quantity "num" and a die-type "die", rolls 'em, and 
     prints each roll and the total and returns the total"""
     total = 0
     while num > 0:
-        roll = randint(1,die)
+        roll = randint(1, die)
         total += roll
         print(roll)
-        num -=1
+        num -= 1
     return total + mod
+
 
 def display_total(total):
     print("\nFinal roll total: {}".format(total))
+
 
 def crit_check(total):
     if total == 20:
@@ -83,13 +89,12 @@ def crit_check(total):
         # sleep(1)
         # reroll = randint(1,20)
         # print("Original roll: {0}    Reroll: {1}\n ".format(total,reroll))
-        
+
     elif total == 1:
-        print("!!! Critical Failure !!! \n") 
+        print("!!! Critical Failure !!! \n")
         # sleep(1)
         # reroll = randint(1,20)
         # print("Original Roll: {0}    Reroll: {1}\n ".format(total,reroll))
-
 
 
 def main():
@@ -105,7 +110,7 @@ def main():
     If the user types "help" it will display a helpful message.
     If the user types "q" (not case sensitive), it will end the program.
     If the user types "r" (not case sensitive), it will reuse the previous roll.
-    
+
     """
     prev_roll = None
     while True:
@@ -125,21 +130,21 @@ def main():
         elif len(dicestring) < 3 or "d" not in dicestring:
             err(NOT_VALID)
             continue
-        num,die,mod = parse_dicestring(dicestring)
-        print("mod is ",mod)
+        num, die, mod = parse_dicestring(dicestring)
+        print("mod is ", mod)
         mod_text = f" + {mod}" if mod else ""
         print(mod_text)
 
         print(f"\nRolling {num} d{die}{mod_text}...")
 
-        total = roll_em(num,die,mod)
+        total = roll_em(num, die, mod)
         if num > 1 or mod:
             display_total(total)
-        if dicestring =="1d20":
+        if dicestring == "1d20":
             crit_check(total)
         prev_roll = dicestring
 
-            
+
 if __name__ == "__main__":
 
     print(welcome_msg)
