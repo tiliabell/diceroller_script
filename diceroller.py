@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from random import randint
 from time import sleep
 
@@ -13,16 +14,18 @@ Type a number followed by the letter \"d\" followed by another number to
 roll some dice. The first number is the quantity of dice. The second 
 number is the type of die aka the number of sides on each die.
 
+Optionally add a 3rd number as a modifier. i.e. 1d20 +3
+
 Type \"r\" to repeat the previous roll.
 Type \"help\" to repeat this prompt. \n
 Type \"q\" to exit.
 """
 
-error_msg = "\nThat's not a valid roll. Please try again.\n"
+NOT_VALID = "\nThat's not a valid roll. Please try again.\n"
 
 prev_roll = None
 
-def err():
+def err(error_msg):
     print(error_msg)
 
 def sanitize(input_string):
@@ -30,14 +33,37 @@ def sanitize(input_string):
     string in lower case
 
     """
+
     input_string = input_string.lower()
     sanitized_string = ""
     for i in input_string:
-        if i.isalnum():
+        if i.isalnum() or i == "+":
             sanitized_string += i
     return sanitized_string
 
-def roll_em(num,die):
+def parse_dicestring(dicestring):
+    num = ""
+    die = ""
+    mod = 0
+    if "+" in dicestring:
+        roll_str,mod_str = dicestring.split("+") 
+    else:
+        roll_str = dicestring
+    num_str,die_str = roll_str.split("d")
+    try:
+        num = int(num_str)
+        die = int(die_str)
+        mod = int(mod_str)
+    except:
+        err("num or die not a decimal")
+        exit(1)
+    
+    if num < 1 or die < 2 : # num must be at least 1, and die must be at least 2
+        err("Number of dice must be at least 1, and die must be at least 2")
+        exit(1)
+    return num,die,mod
+
+def roll_em(num, die, mod):
     """Takes a quantity "num" and a die-type "die", rolls 'em, and 
     prints each roll and the total and returns the total"""
     total = 0
@@ -46,7 +72,7 @@ def roll_em(num,die):
         total += roll
         print(roll)
         num -=1
-    return total
+    return total + mod
 
 def display_total(total):
     print("\nFinal roll total: {}".format(total))
@@ -66,7 +92,7 @@ def crit_check(total):
 
 
 
-def diceroller():
+def main():
     """diceroller has no parameters; runs until the user exits
 
     While diceroller is running, it will continually loop, starting 
@@ -84,57 +110,38 @@ def diceroller():
     prev_roll = None
     while True:
         dicestring = sanitize(input("\nDice to roll: "))
-
-        num = ""
-        die = ""
         if dicestring == "q":
             print("Thanks for rolling!\n")
-            break
+            exit(0)
         elif dicestring == "r":
             if prev_roll == None:
-                print("No Previous rolls available.")
+                print("No previous rolls available.")
                 continue
             else:
                 dicestring = prev_roll
-        elif dicestring == "help":
+        elif dicestring == "help" or dicestring == "h":
             print(info_msg)
             continue
         elif len(dicestring) < 3 or "d" not in dicestring:
-            err()
+            err(NOT_VALID)
             continue
-        for i in range(len(dicestring)):
+        num,die,mod = parse_dicestring(dicestring)
+        print("mod is ",mod)
+        mod_text = f" + {mod}" if mod else ""
+        print(mod_text)
 
-            if dicestring[i] == "d":
-                num = dicestring[:i]
-                die = dicestring[(i+1):]
-        if not num.isdecimal() or not die.isdecimal():
-            err()
-            continue
-        
+        print(f"\nRolling {num} d{die}{mod_text}...")
 
-        num = int(num)
-        die = int(die)
-
-        if num < 1 or die < 2 : # num must be at least 1, and die must be at least 2
-            err()
-            continue
-
-        print("\nRolling {0} d{1}...".format(num,die))
-
-        total = roll_em(num,die)
-        if num > 1:
+        total = roll_em(num,die,mod)
+        if num > 1 or mod:
             display_total(total)
         if dicestring =="1d20":
             crit_check(total)
         prev_roll = dicestring
 
-        
-
-        
-        #reroll = sanitize(input("Reroll? Y/N " ))
-        #if reroll == "n" or reroll == "exit":
-        #    cont = False
             
-print(welcome_msg)
-print(info_msg)
-diceroller()
+if __name__ == "__main__":
+
+    print(welcome_msg)
+    print(info_msg)
+    main()
