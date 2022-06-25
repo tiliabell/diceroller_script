@@ -47,7 +47,7 @@ def sanitize(input_string):
 def parse_dicestring(dicestring):
     num = ""
     die = ""
-    mod = 0
+    mod_str = "0"
     if "+" in dicestring:
         roll_str, mod_str = dicestring.split("+")
     else:
@@ -131,9 +131,7 @@ def main():
             err(NOT_VALID)
             continue
         num, die, mod = parse_dicestring(dicestring)
-        print("mod is ", mod)
         mod_text = f" + {mod}" if mod else ""
-        print(mod_text)
 
         print(f"\nRolling {num} d{die}{mod_text}...")
 
